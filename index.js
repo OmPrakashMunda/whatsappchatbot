@@ -44,11 +44,6 @@ try {
         console.log(qr);
     });
 
-    // Serve HTML form
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, '/public/index.html'));
-    });
-
 
     client.on('ready', () => {
         console.clear();

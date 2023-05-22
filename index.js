@@ -9,41 +9,31 @@ const moment = require('moment-timezone');
 const colors = require('colors');
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
 const ytdl = require('ytdl-core');
 const fetch = require('node-fetch');
 const snapsaveDownloader = require("snapsave-downloader");
 const Sentry = require("@sentry/node");
 
 Sentry.init({
-    dsn: "https://c8ed695dc2b64b82856f8a96f8f76b65@o4505220469293056.ingest.sentry.io/4505220470996992",
+    dsn: "YOUR_SENTRY_DNS",
     tracesSampleRate: 1.0,
 });
 
 try {
-    const app = express();
-
-    app.use(express.urlencoded({
-        extended: true
-    }));
-    app.use(express.json());
-
     const client = new Client({
         restartOnAuthFail: true,
         puppeteer: {
             headless: true,
-            executablePath: '/usr/bin/google-chrome-stable',
+            //executablePath: '/usr/bin/google-chrome-stable',
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         },
-        ffmpeg: './ffmpeg.exe',
+        //ffmpeg: './ffmpeg.exe',
         authStrategy: new LocalAuth({
             clientId: "client"
         })
     });
 
     const config = require('./config/config.json');
-
-    const passwordHash = 'UAl6f2hDoDnRziDIUhDNiaBFbP3cTWb4eLWQr5xmliEJU8PBx2';
 
     // Register event listeners
     client.on('qr', (qr) => {
@@ -59,25 +49,6 @@ try {
         res.sendFile(path.join(__dirname, '/public/index.html'));
     });
 
-    // Accept POST requests for triggering message sending
-    app.get('/send', async (req, res) => {
-        const phoneNumber = req.query.phoneNumber;
-        const message = req.query.message;
-        const password = req.query.password;
-        console.log(phoneNumber);
-        if (password == passwordHash) {
-            try {
-                await client.sendMessage(`${phoneNumber}@c.us`, message);
-                console.log('Message sent successfully');
-                res.send('Message sent successfully');
-            } catch (err) {
-                console.error('Error sending message:', err);
-                res.status(500).send('Error sending message');
-            }
-        } else {
-            res.status(403).send('Unauthorized');
-        }
-    });
 
     client.on('ready', () => {
         console.clear();
@@ -298,11 +269,6 @@ Thank you for using ITJ-BOT, a product by ITJUPITER Pvt Ltd, and trusting us wit
     });
 
     client.initialize();
-    const port = 1111;
-    const server = app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-
 } catch (error) {
     Sentry.captureException(error);
 }
